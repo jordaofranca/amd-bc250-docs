@@ -128,6 +128,99 @@ Standard 4-pin PWM-capable fan header:
 | `DET` | Grounded if connected to power distribution board |
 | `GND` | Ground |
 
+```python?code_reference&code_event_index=1
+import os
+
+# Content for the GitHub README/Markdown file
+md_content = """# J4003 Multi-Fan Header Connection Guide
+
+This guide explains how to connect standard 4-pin PWM fans to the **J4003** 2.54mm-pitch connector commonly found on industrial and rack-mount motherboards.
+
+## 1. Header Pinout Overview
+
+The J4003 is a 2x8 (16-pin) header designed to interface with a Power Distribution Board (PDB) for high-density cooling (5x 80mm fans).
+
+| Pin Row | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Top** | GND | F1T | F2T | F3T | F4T | F5T | DET | |
+| **Bottom** | GND | F1P | F2P | F3P | F4P | F5P | GND | GND |
+
+**Signal Definitions:**
+* **FnT:** Fan *n* Tachometer (Speed signal output from fan)
+* **FnP:** Fan *n* PWM (Control signal input to fan)
+* **DET:** Detection pin (Grounded to signal presence of fan board)
+* **GND:** Ground
+
+---
+
+## 2. Wiring Standard 4-Pin PWM Fans
+
+**CRITICAL:** The J4003 header does **NOT** provide 12V power. Standard fans require 12V to operate. You must pull 12V from a peripheral power connector (Molex/SATA) or the PSU.
+
+### Mapping Table
+
+| Fan Wire Color | Function | J4003 Pin | External Connection |
+| :--- | :--- | :--- | :--- |
+| **Black** | Ground | GND | - |
+| **Yellow/Red** | 12V Power | *None* | **Connect to PSU +12V** |
+| **Green/White** | Tachometer | FnT | - |
+| **Blue** | PWM Control | FnP | - |
+
+### The DET Pin Requirement
+For the BIOS/System to recognize that fans are connected, the **DET** pin (Top Row, Pin 7) should be tied to **GND**. Without this, the fan controller may remain inactive or report a chassis fan error.
+
+---
+
+## 3. Software & OS Fan Mapping
+
+The logical numbering of fans differs between the hardware labels, the BIOS interface, and the Linux kernel (specifically the `nct6686` driver).
+
+| Physical J4003 Label | BIOS Label | Linux Device (`nct6686`) |
+| :--- | :--- | :--- |
+| Fan 1 | Fan 1 | Fan 2 |
+| Fan 2 | Fan 2 | Fan 3 |
+| Fan 3 | Fan 3 | Fan 4 |
+| Fan 4 | Fan 4 | Fan 5 |
+| **Fan 5** | **Fan 5** | **Fan 1** |
+
+---
+
+## 4. Connection Diagram Concept
+
+```
+```text?code_stdout&code_event_index=1
+J4003_Fan_Header_Guide.md
+
+```text
+[ PSU 12V ] ----------------------> [ Fan 12V Wire ]
+[ J4003 GND ] --------------------> [ Fan GND Wire ]
+[ J4003 F1T ] --------------------> [ Fan Tach Wire ]
+[ J4003 F1P ] --------------------> [ Fan PWM Wire ]
+[ J4003 DET ] --(Bridge to)-- [ J4003 GND ]
+```
+
+> **Warning:** Ensure all ground (GND) lines are common (connected together) between the PSU and the J4003 header to prevent signal noise or hardware damage.
+"""
+
+# Write to a file
+file_path = 'J4003_Fan_Header_Guide.md'
+with open(file_path, 'w') as f:
+    f.write(md_content)
+
+print(file_path)
+
+
+```
+Your Markdown documentation for the J4003 Multi-Fan Header is ready. It includes the pinout mapping, power requirements, and the specific BIOS vs. Linux fan numbering logic.
+
+Your Markdown file is ready
+[file-tag: code-generated-file-0-1777911555025891886]
+
+### Quick Integration Guide:
+* **The DET Pin:** Make sure to bridge the `DET` pin to `GND`. This mimics the connection to a power distribution board, signaling to the motherboard that fans are present.
+* **External 12V:** Because this header only provides control signals (PWM) and speed monitoring (Tach), you **must** connect the 12V wire of your fans directly to your Power Supply Unit (PSU) via a Molex or SATA power adapter.
+* **Common Ground:** Ensure the ground wire from the fans, the ground from the PSU, and the GND pin on the J4003 header are all connected (common ground) to ensure signal integrity.
+
 Fan 1 signals correspond to `CPU_FAN1` tachometer and PWM pins.
 
 **Fan Numbering (BIOS vs Linux):**
